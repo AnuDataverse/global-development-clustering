@@ -1,8 +1,9 @@
- import streamlit as st
+import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
 import plotly.express as px
+
 
 # ---------------------------------------------------------
 # 1. Page Configuration
@@ -294,3 +295,6 @@ with tab4:
 
 st.markdown("---")
 st.caption("📌 Unsupervised ML-based Global Development Decision Support System")
+
+Fix indentation error in app.py
+
