@@ -4,6 +4,21 @@ import numpy as np
 import joblib
 import plotly.express as px
 
+df = df_orig.copy()
+# ---------------------------------------------------------
+# Detect Country Column Automatically
+# ---------------------------------------------------------
+def detect_country_column(df):
+    possible_cols = [
+        "Country", "country", "Country_Name", "country_name",
+        "Countries", "nation", "Nation"
+    ]
+    for c in possible_cols:
+        if c in df.columns:
+            return c
+    return None
+
+country_col = detect_country_column(df)
 
 # ---------------------------------------------------------
 # 1. Page Configuration
@@ -171,13 +186,14 @@ tab1, tab2, tab3, tab4 = st.tabs([
 with tab1:
     st.subheader("🌍 Country Development Comparison")
     
-    if "Country" in df.columns:
-        selected_country = st.selectbox(
-            "Select a Country", 
-            sorted(df["Country"].unique())
-        )
+   if country_col:
+    selected_country = st.selectbox(
+        "Select a Country", 
+        sorted(df[country_col].unique())
+    )
         
-        country_row = df[df["Country"] == selected_country]
+    country_row = df[df[country_col] == selected_country]
+
         
         if not country_row.empty:
             current_status = country_row["Status"].values[0]
@@ -232,14 +248,14 @@ with tab1:
 with tab2:
     st.subheader("🗺️ Global Development Status Map")
     
-    if "Country" in df.columns:
-        fig_map = px.choropleth(
-            df,
-            locations="Country",
-            locationmode="country names",
-            color="Status",
-            hover_name="Country",
-            color_discrete_map={
+    if country_col:
+    fig_map = px.choropleth(
+        df,
+        locations=country_col,
+        locationmode="country names",
+        color="Status",
+        hover_name=country_col,
+        color_discrete_map={
                 "Poor Country": "#d62728",
                 "Developing Country": "#ff7f0e",
                 "Developed Country": "#2ca02c"
@@ -258,7 +274,8 @@ with tab3:
     X_pca = pipeline.transform(df[feature_cols])
     plot_df = pd.DataFrame(X_pca[:, :2], columns=["PC1", "PC2"])
     plot_df["Status"] = df["Status"]
-    plot_df["Country"] = df["Country"] if "Country" in df.columns else df.index
+    plot_df["Country"] = df[country_col] if country_col else df.index
+
     
     fig_pca = px.scatter(
         plot_df, 
